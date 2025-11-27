@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mon Restaurant</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <div class="hero-section">
+        <div>
+            <h3 style="color: var(--primary); letter-spacing: 2px;">GOURMET BURGERS</h3>
+            <h1 style="font-size: 3.5rem; margin: 10px 0;">LE GOÛT SUPRÊME</h1>
+            <button class="btn-primary" onclick="document.getElementById('menu').scrollIntoView()">Voir le Menu</button>
+        </div>
+    </div>
+
+    <div style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+        <button class="btn-primary" onclick="toggleCart()">
+            <i class="fas fa-shopping-cart"></i> <span id="cart-count">0</span>
+        </button>
+    </div>
+
+    <% if (query.success) { %>
+        <div style="background: #50D1AA; color: #000; padding: 15px; text-align: center; font-weight: bold;">
+            🚀 Commande envoyée en cuisine !
+        </div>
+    <% } %>
+
+    <div id="menu" class="menu-grid">
+        <% plats.forEach(plat => { %>
+            <div class="dish-card">
+                <img src="<%= plat.image || 'https://source.unsplash.com/200x200/?burger' %>" class="dish-img">
+                <h3 style="margin-top: 20px;"><%= plat.nom %></h3>
+                <p style="color: var(--text-gray); font-size: 0.9rem;"><%= plat.description || "Délicieux burger maison" %></p>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                    <span style="font-size: 1.2rem; font-weight: bold;"><%= plat.prix %> $</span>
+                    <button class="btn-primary" style="padding: 8px 15px;" onclick="addToCart('<%= plat._id %>', '<%= plat.nom %>', <%= plat.prix %>)">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+
+    <div id="cartModal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center;">
+        <div class="card-dark" style="width: 400px; max-width: 90%;">
+            <h2 style="margin-top:0;">Votre Panier</h2>
+            <ul id="cart-items" style="list-style: none; padding: 0; color: var(--text-gray); max-height: 200px; overflow-y: auto;"></ul>
+            <h3 style="text-align: right;">Total: <span id="cart-total">0</span> $</h3>
+            
+            <form action="/commander" method="POST">
+                <input type="hidden" name="panierJson" id="panierInput">
+                <input type="text" name="clientNom" placeholder="Votre nom / Table" required>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" class="btn-primary" style="background: #333;" onclick="toggleCart()">Fermer</button>
+                    <button type="submit" class="btn-primary" style="flex: 1;">Valider la commande</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+        function toggleCart() {
+            const el = document.getElementById('cartModal');
+            el.style.display = el.style.display === 'flex' ? 'none' : 'flex';
+        }
+        function addToCart(id, nom, prix) {
+            const existing = cart.find(i => i.id === id);
+            if(existing) existing.qty++; else cart.push({id, nom, prix, qty:1});
+            updateUI();
+        }
+        function updateUI() {
+            document.getElementById('cart-count').innerText = cart.reduce((a,b)=>a+b.qty,0);
+            const list = document.getElementById('cart-items');
+            list.innerHTML = '';
+            let total = 0;
+            cart.forEach(i => {
+                total += i.prix * i.qty;
+                list.innerHTML += `<li style="margin-bottom:5px; border-bottom:1px solid #333; padding-bottom:5px;">
+                    <b>${i.qty}x</b> ${i.nom} <span style="float:right">${(i.prix*i.qty).toFixed(2)}$</span>
+                </li>`;
+            });
+            document.getElementById('cart-total').innerText = total.toFixed(2);
+            document.getElementById('panierInput').value = JSON.stringify(cart);
+        }
+    </script>
+</body>
+</html>
