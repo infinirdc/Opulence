@@ -6,26 +6,24 @@ const { Ingredient, Plat, Commande } = require('./models/Schemas');
 
 const app = express();
 
-// Configuration pour Vercel et EJS
+// Configuration Vercel & EJS
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
-// --- CONNEXION MONGODB ROBUSTE ---
-// On ne bloque pas le démarrage du serveur si la DB échoue
+// --- CONNEXION SÉCURISÉE (Anti-Crash) ---
 const connectDB = async () => {
     if (mongoose.connection.readyState === 0) {
         try {
             await mongoose.connect(process.env.MONGO_URI);
-            console.log("🟢 Connecté à MongoDB");
+            console.log("🟢 Connecté à MongoDB (Opulence)");
         } catch (err) {
-            console.error("🔴 Erreur connexion MongoDB (Mode Hors Ligne activé):", err.message);
+            console.error("⚠️ Mode Hors-Ligne : Impossible de se connecter à la DB.");
         }
     }
 };
-// On tente la connexion au démarrage
-connectDB();
+connectDB(); // Tentative de connexion au démarrage
 
 // --- ROUTES CLIENT ---
 
@@ -34,26 +32,21 @@ app.get('/', async (req, res) => {
     let dbStatus = false;
 
     try {
-        // Vérifie si la DB est connectée avant de chercher les plats
         if (mongoose.connection.readyState === 1) {
             plats = await Plat.find();
             dbStatus = true;
-        } else {
-            console.log("⚠️ DB non connectée: Chargement de l'index sans plats.");
         }
     } catch (e) {
-        console.error("⚠️ Erreur lors de la récupération des plats :", e.message);
-        // On ignore l'erreur pour laisser la page s'afficher
+        console.error("Erreur lecture plats:", e.message);
     }
 
-    // On rend la vue MÊME si plats est vide ou s'il y a eu une erreur
+    // Affiche le site même si 'plats' est vide
     res.render('index', { plats, query: req.query, dbStatus });
 });
 
 app.post('/commander', async (req, res) => {
-    // Si la DB n'est pas là, on ne peut pas commander
     if (mongoose.connection.readyState !== 1) {
-        return res.send("Désolé, le service de commande est temporairement indisponible (Erreur connexion).");
+        return res.send("Service momentanément indisponible (Connexion DB).");
     }
 
     try {
@@ -69,13 +62,12 @@ app.post('/commander', async (req, res) => {
                 total += platDb.prix * item.qty;
                 itemsCommande.push({ platNom: platDb.nom, quantite: item.qty, prix: platDb.prix });
 
-                // Déduction Stock
-                if(platDb.ingredientsRequis && platDb.ingredientsRequis.length > 0) {
+                // Gestion des stocks
+                if(platDb.ingredientsRequis) {
                     for (let reqIng of platDb.ingredientsRequis) {
                         if(reqIng.ingredient) {
-                            const qteADeduire = reqIng.quantite * item.qty;
                             await Ingredient.findByIdAndUpdate(reqIng.ingredient._id, { 
-                                $inc: { quantite: -qteADeduire } 
+                                $inc: { quantite: -(reqIng.quantite * item.qty) } 
                             });
                         }
                     }
@@ -86,37 +78,29 @@ app.post('/commander', async (req, res) => {
         await Commande.create({ client: clientNom, items: itemsCommande, total: total });
         res.redirect('/?success=true');
     } catch (e) {
-        console.error(e);
-        res.send("Erreur lors de la commande: " + e.message);
+        res.send("Erreur commande: " + e.message);
     }
 });
 
 // --- ROUTES ADMIN ---
 
 app.get('/admin', async (req, res) => {
-    // Initialisation avec des tableaux vides pour éviter le crash EJS
-    let ingredients = [];
-    let plats = [];
-    let commandes = [];
-
+    let data = { ingredients: [], plats: [], commandes: [] };
+    
     try {
         if (mongoose.connection.readyState === 1) {
-            ingredients = await Ingredient.find();
-            plats = await Plat.find().populate('ingredientsRequis.ingredient');
-            commandes = await Commande.find().sort({ date: -1 });
+            data.ingredients = await Ingredient.find();
+            data.plats = await Plat.find();
+            data.commandes = await Commande.find().sort({ date: -1 });
         }
-        res.render('admin', { ingredients, plats, commandes });
+        res.render('admin', data);
     } catch (e) {
-        // En cas d'erreur critique, on affiche quand même le dashboard (vide)
-        console.error("Erreur Admin:", e);
-        res.render('admin', { ingredients: [], plats: [], commandes: [] });
+        res.render('admin', data); // Affiche le dashboard vide en cas d'erreur
     }
 });
 
 app.post('/admin/add-stock', async (req, res) => {
-    try {
-        await Ingredient.create(req.body);
-    } catch(e) { console.error(e); }
+    try { await Ingredient.create(req.body); } catch(e){}
     res.redirect('/admin');
 });
 
@@ -124,25 +108,21 @@ app.post('/admin/add-plat', async (req, res) => {
     try {
         const { nom, prix, image, description, ingredientId, ingredientQte } = req.body;
         let ingredientsRequis = [];
-        if(ingredientId && ingredientQte) {
-            ingredientsRequis.push({ ingredient: ingredientId, quantite: ingredientQte });
-        }
+        if(ingredientId && ingredientQte) ingredientsRequis.push({ ingredient: ingredientId, quantite: ingredientQte });
         await Plat.create({ nom, prix, image, description, ingredientsRequis });
-    } catch(e) { console.error(e); }
+    } catch(e){}
     res.redirect('/admin');
 });
 
 app.post('/admin/update-status/:id', async (req, res) => {
-    try {
-        await Commande.findByIdAndUpdate(req.params.id, { statut: req.body.statut });
-    } catch(e) { console.error(e); }
+    try { await Commande.findByIdAndUpdate(req.params.id, { statut: req.body.statut }); } catch(e){}
     res.redirect('/admin');
 });
 
-// --- MODIFICATION POUR VERCEL ---
+// Serveur Local
 if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => console.log(`🚀 Serveur local: http://localhost:${PORT}`));
+    app.listen(PORT, () => console.log(`💎 Opulence est en ligne: http://localhost:${PORT}`));
 }
 
 module.exports = app;
