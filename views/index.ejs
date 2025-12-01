@@ -28,20 +28,30 @@
         </div>
     <% } %>
 
+    <% if (!plats || plats.length === 0) { %>
+        <div style="text-align: center; padding: 50px; color: var(--text-gray);">
+            <i class="fas fa-exclamation-circle" style="font-size: 3rem; margin-bottom: 20px;"></i>
+            <h2>Le menu est en cours de mise à jour</h2>
+            <p>Revenez dans quelques instants ou contactez le serveur.</p>
+        </div>
+    <% } %>
+
     <div id="menu" class="menu-grid">
-        <% plats.forEach(plat => { %>
-            <div class="dish-card">
-                <img src="<%= plat.image || 'https://source.unsplash.com/200x200/?burger' %>" class="dish-img">
-                <h3 style="margin-top: 20px;"><%= plat.nom %></h3>
-                <p style="color: var(--text-gray); font-size: 0.9rem;"><%= plat.description || "Délicieux burger maison" %></p>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-                    <span style="font-size: 1.2rem; font-weight: bold;"><%= plat.prix %> $</span>
-                    <button class="btn-primary" style="padding: 8px 15px;" onclick="addToCart('<%= plat._id %>', '<%= plat.nom %>', <%= plat.prix %>)">
-                        <i class="fas fa-plus"></i>
-                    </button>
+        <% if (plats && plats.length > 0) { %>
+            <% plats.forEach(plat => { %>
+                <div class="dish-card">
+                    <img src="<%= plat.image || 'https://source.unsplash.com/200x200/?burger' %>" class="dish-img">
+                    <h3 style="margin-top: 20px;"><%= plat.nom %></h3>
+                    <p style="color: var(--text-gray); font-size: 0.9rem;"><%= plat.description || "Délicieux burger maison" %></p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                        <span style="font-size: 1.2rem; font-weight: bold;"><%= plat.prix %> $</span>
+                        <button class="btn-primary" style="padding: 8px 15px;" onclick="addToCart('<%= plat._id %>', '<%= plat.nom %>', <%= plat.prix %>)">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
                 </div>
-            </div>
-        <% }) %>
+            <% }) %>
+        <% } %>
     </div>
 
     <div id="cartModal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center;">
