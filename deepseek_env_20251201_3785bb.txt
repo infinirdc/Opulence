@@ -1,5 +1,6 @@
-MONGO_URI=mongodb+srv://marume:Anikulapo0@infini.ywvovbm.mongodb.net/restaurant?retryWrites=true&w=majority
-PORT=3000
+# Configuration MongoDB
+MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/opulence?retryWrites=true&w=majority
+
 # Sécurité
 ADMIN_PIN=1234
 SESSION_SECRET=your-super-secret-session-key-change-this-in-production

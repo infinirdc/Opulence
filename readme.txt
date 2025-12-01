@@ -1,13 +1,17 @@
-opulence/
+/
+├── server.js
 ├── models/
-│   └── Schemas.js
-├── public/
-│   ├── css/
-│   │   └── style.css
-│   └── images/   (Optionnel : mets tes photos ici)
+│ └── Schemas.js
 ├── views/
-│   ├── index.ejs
-│   └── admin.ejs
+│ ├── index.ejs
+│ ├── admin.ejs
+│ └── admin-login.ejs
+├── public/
+│ ├── css/
+│ │ └── style.css
+│ └── js/
+│ └── cart.js
 ├── .env
+├── .env.example
 ├── package.json
-└── server.js
+└── vercel.json
