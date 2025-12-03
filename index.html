@@ -11,6 +11,7 @@
         :root {
             --gold: #d4af37;
             --gold-light: #f3e5ab;
+            --drink-color: #00e5ff; /* Couleur distinctive pour les boissons */
             --dark-blue: #0b1116;
             --rich-black: #0a0a0a;
             --text-grey: #a0a0a0;
@@ -63,23 +64,7 @@
             right: 20px;
             z-index: 9999;
             display: flex;
-            gap: 15px;
             align-items: center;
-        }
-
-        .design-switcher {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(5px);
-            color: var(--gold);
-            padding: 8px 15px;
-            border: 1px solid var(--gold);
-            cursor: pointer;
-            font-family: var(--font-sans);
-            font-weight: bold;
-            text-transform: uppercase;
-            font-size: 0.7rem;
-            border-radius: 30px;
-            transition: var(--transition);
         }
 
         .cart-btn {
@@ -121,14 +106,15 @@
         .cart-count.visible { opacity: 1; transform: scale(1); }
         .pop-anim { animation: pop 0.3s ease; }
 
-        /* --- DESIGN 1 (Menu Liste) --- */
+        /* --- DESIGN LISTE --- */
         #design-1 {
             background-color: var(--dark-blue);
+            min-height: 100vh;
         }
 
         .d1-hero {
             height: 40vh;
-            background: linear-gradient(rgba(11,17,22,0.7), rgba(11,17,22,1)), url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+            background: linear-gradient(rgba(11,17,22,0.7), rgba(11,17,22,1)), url('/asset/1763276037679_11zon.webp');
             background-size: cover;
             background-position: center;
             display: flex;
@@ -188,16 +174,34 @@
             margin-bottom: 20px;
             cursor: pointer;
             padding: 15px;
-            border-radius: 12px;
+            border-radius: 4px 12px 12px 4px; /* Coin gauche carré pour la bordure */
             background: rgba(255,255,255,0.02);
             border: 1px solid rgba(255,255,255,0.05);
+            /* Bordure gauche par défaut */
+            border-left: 5px solid transparent; 
             transition: all 0.3s ease;
+        }
+
+        /* Distinction par couleur */
+        .d1-item.type-plat {
+            border-left-color: var(--gold);
+        }
+
+        .d1-item.type-boisson {
+            border-left-color: var(--drink-color);
         }
 
         .d1-item:hover {
             background: rgba(255,255,255,0.05);
-            border-color: rgba(212, 175, 55, 0.3);
             transform: translateX(5px);
+        }
+
+        .d1-item.type-plat:hover {
+            box-shadow: -2px 0 15px rgba(212, 175, 55, 0.1);
+        }
+        
+        .d1-item.type-boisson:hover {
+            box-shadow: -2px 0 15px rgba(0, 229, 255, 0.1);
         }
 
         .d1-thumb {
@@ -206,7 +210,7 @@
             border-radius: 8px;
             object-fit: cover;
             margin-right: 20px;
-            border: 1px solid rgba(212, 175, 55, 0.3);
+            border: 1px solid rgba(255,255,255,0.1);
             flex-shrink: 0;
         }
 
@@ -259,39 +263,6 @@
             color: #000;
         }
 
-        /* --- DESIGN 2 (Modern Grid) --- */
-        #design-2 {
-            display: none;
-            background-color: #121212;
-        }
-        
-        /* Using simplified Design 2 just for variety toggle */
-        .d2-hero {
-            height: 60vh;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(18,18,18,1)), url('https://images.unsplash.com/photo-1544025162-d76694265947?ixlib=rb-1.2.1&auto=format&fit=crop&w=1949&q=80');
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-
-        .d2-hero h1 { font-size: 4rem; color:white; font-family: var(--font-serif); }
-        .d2-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; padding: 50px 5%; }
-        
-        .d2-card {
-            background: #1e1e1e;
-            border-radius: 15px;
-            overflow: hidden;
-            transition: transform 0.3s;
-        }
-        .d2-card:hover { transform: translateY(-10px); }
-        .d2-img { width: 100%; height: 200px; object-fit: cover; }
-        .d2-content { padding: 20px; }
-        .d2-title { color: white; margin-bottom: 10px; font-family: var(--font-serif); }
-        .d2-price { color: var(--gold); font-weight: bold; display: block; margin-top: 10px; }
-
         /* --- CART MODAL --- */
         .cart-modal {
             position: fixed;
@@ -330,7 +301,9 @@
 
         @media (max-width: 768px) {
             .d1-hero h1 { font-size: 2.5rem; }
-            .d1-item { flex-direction: column; text-align: center; }
+            .d1-item { flex-direction: column; text-align: center; border-left: none; border-top: 5px solid transparent; }
+            .d1-item.type-plat { border-top-color: var(--gold); }
+            .d1-item.type-boisson { border-top-color: var(--drink-color); }
             .d1-thumb { margin: 0 0 15px 0; width: 80px; height: 80px; }
             .d1-info { padding: 0; margin-bottom: 10px; }
             .d1-price { text-align: center; margin-bottom: 10px; }
@@ -341,9 +314,6 @@
 <body>
 
     <div class="ui-controls">
-        <button class="design-switcher" onclick="toggleDesign()">
-            <i class="fas fa-sync-alt"></i> Style
-        </button>
         <button class="cart-btn" onclick="openCart()">
             <i class="fas fa-shopping-bag"></i>
             <span class="cart-count" id="cartCount">0</span>
@@ -352,7 +322,6 @@
 
     <div class="toast" id="toast">Ajouté au panier ! 😋</div>
 
-    <!-- Cart Modal -->
     <div class="cart-modal" id="cartModal">
         <div class="loader-overlay" id="loader">
             <div class="spinner"></div>
@@ -374,7 +343,6 @@
         </div>
     </div>
 
-    <!-- DESIGN 1: LISTE COMPLÈTE & ÉLÉGANTE -->
     <div id="design-1">
         <section class="d1-hero">
             <h1>Opulence</h1>
@@ -383,16 +351,13 @@
 
         <div class="d1-container">
             
-            <!-- SECTION 1: Plats -->
             <h2 class="menu-section-title">Nos Plats Traditionnels</h2>
             <div class="reveal" id="plats-container">
-                <!-- Items injectés via JS pour plus de propreté, mais on peut les mettre en dur aussi. -->
-            </div>
+                </div>
 
-            <!-- SECTION 2: Boissons -->
             <h2 class="menu-section-title">Nos Boissons</h2>
             <div class="reveal" id="boissons-container">
-            </div>
+                </div>
 
         </div>
         
@@ -401,38 +366,29 @@
         </footer>
     </div>
 
-    <!-- DESIGN 2: VISUEL (Juste pour la démo) -->
-    <div id="design-2">
-        <section class="d2-hero">
-            <h1>La Carte Visuelle</h1>
-        </section>
-        <div class="d2-grid" id="d2-grid">
-            <!-- Grid items injected via JS -->
-        </div>
-    </div>
-
     <script>
-        // --- DONNÉES DU MENU (Extraites de votre liste) ---
+        // --- DONNÉES DU MENU ---
+        // Les images sont associées selon l'ordre fourni (1 à 18).
         const menuData = {
             plats: [
-                { name: "Haricots aux Pieds de Porc", desc: "Madesu avec viande fumée, mijoté lentement.", price: 18, img: "https://images.unsplash.com/photo-1546549012-96020ef100aa?auto=format&fit=crop&w=150&q=80" },
-                { name: "Liboké de Poisson", desc: "Poisson fumé ou frais cuit à l'étuvée dans des feuilles de bananier.", price: 22, img: "https://images.unsplash.com/photo-1626804475297-411d8768a44b?auto=format&fit=crop&w=150&q=80" },
-                { name: "Vers de Palme Grillés", desc: "Minkala / Mbinzo, croustillants et riches en protéines.", price: 15, img: "https://images.unsplash.com/photo-1596797038530-2c107229654b?auto=format&fit=crop&w=150&q=80" },
-                { name: "Poulet à la Chikwangue", desc: "Accompagné de boules de Chikwangue ou pâte de Manioc.", price: 20, img: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=150&q=80" },
-                { name: "Ragoût Légumes Verts", desc: "Mélange savoureux avec champignons frais.", price: 16, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=150&q=80" },
-                { name: "Poisson Fumé Émietté", desc: "Servi avec une étuvée de poisson parfumée.", price: 19, img: "https://images.unsplash.com/photo-1519708227418-c8fd9a3a2720?auto=format&fit=crop&w=150&q=80" },
-                { name: "Madesu na Mboka", desc: "Soupe ou ragoût de viande traditionnelle.", price: 18, img: "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=150&q=80" },
-                { name: "Légumes-Feuilles & Poisson", desc: "Épinards ou Folon avec poisson fumé.", price: 17, img: "https://images.unsplash.com/photo-1580476262716-6b36936630f0?auto=format&fit=crop&w=150&q=80" },
-                { name: "Mbinzo Sautés", desc: "Vers et légumes sautés à la poêle.", price: 16, img: "https://images.unsplash.com/photo-1606850780554-b55ea2ce98e2?auto=format&fit=crop&w=150&q=80" },
-                { name: "Poisson Grillé & Pondu", desc: "Servi avec Chikwangue.", price: 24, img: "https://images.unsplash.com/photo-1583563914878-31653df32921?auto=format&fit=crop&w=150&q=80" },
-                { name: "Chinchinga", desc: "Brochettes de tripes braisées, épicées.", price: 14, img: "https://images.unsplash.com/photo-1529193591184-b1d580690dd0?auto=format&fit=crop&w=150&q=80" },
-                { name: "Poisson Sauce Arachide", desc: "Grillé avec Pondu à la pâte d'arachide.", price: 23, img: "https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=150&q=80" },
-                { name: "Malewa", desc: "Pâte de bambou ou Tofou Africain.", price: 15, img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=150&q=80" },
-                { name: "Silure Fumé en Sauce", desc: "Poisson-chat mijoté.", price: 21, img: "https://images.unsplash.com/photo-1553163147-621957516d64?auto=format&fit=crop&w=150&q=80" },
-                { name: "Silure Tomate & Plantain", desc: "Poisson-chat en sauce tomate avec plantain bouilli.", price: 22, img: "https://images.unsplash.com/photo-1574484284008-59d7aa392a95?auto=format&fit=crop&w=150&q=80" },
-                { name: "Folon aux Oignons", desc: "Ragoût de légumes (Amarante).", price: 14, img: "https://images.unsplash.com/photo-1604152135912-04a022e23696?auto=format&fit=crop&w=150&q=80" },
-                { name: "Poulet Moambe", desc: "La spécialité ! Accompagnement de manioc.", price: 25, img: "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?auto=format&fit=crop&w=150&q=80" },
-                { name: "Ragoût Viande & Tripes", desc: "Parfumé aux herbes (Dill).", price: 19, img: "https://images.unsplash.com/photo-1595257841889-addf547a2053?auto=format&fit=crop&w=150&q=80" }
+                { name: "Haricots aux Pieds de Porc", desc: "Madesu avec viande fumée, mijoté lentement.", price: 18, img: "/asset/16.webp" },
+                { name: "Liboké de Poisson", desc: "Poisson fumé ou frais cuit à l'étuvée dans des feuilles de bananier.", price: 22, img: "/asset/11.webp" },
+                { name: "Vers de Palme Grillés", desc: "Minkala / Mbinzo, croustillants et riches en protéines.", price: 15, img: "/asset/8.webp" },
+                { name: "Poulet à la Chikwangue", desc: "Accompagné de boules de Chikwangue ou pâte de Manioc.", price: 20, img: "/asset/9.webp" },
+                { name: "Ragoût Légumes Verts", desc: "Mélange savoureux avec champignons frais.", price: 16, img: "/asset/14.webp" },
+                { name: "Poisson Fumé Émietté", desc: "Servi avec une étuvée de poisson parfumée.", price: 19, img: "/asset/2.webp" },
+                { name: "Madesu na Mboka", desc: "Soupe ou ragoût de viande traditionnelle.", price: 18, img: "/asset/13.webp" },
+                { name: "Légumes-Feuilles & Poisson", desc: "Épinards ou Folon avec poisson fumé.", price: 17, img: "/asset/17.webp" },
+                { name: "Mbinzo Sautés", desc: "Vers et légumes sautés à la poêle.", price: 16, img: "/asset/15.webp" },
+                { name: "Poisson Grillé & Pondu", desc: "Servi avec Chikwangue.", price: 24, img: "/asset/12.webp" },
+                { name: "Chinchinga", desc: "Brochettes de tripes braisées, épicées.", price: 14, img: "/asset/5.webp" },
+                { name: "Poisson Sauce Arachide", desc: "Grillé avec Pondu à la pâte d'arachide.", price: 23, img: "/asset/4.webp" },
+                { name: "Malewa", desc: "Pâte de bambou ou Tofou Africain.", price: 15, img: "/asset/7.webp" },
+                { name: "Silure Fumé en Sauce", desc: "Poisson-chat mijoté.", price: 21, img: "/asset/10.webp" },
+                { name: "Silure Tomate & Plantain", desc: "Poisson-chat en sauce tomate avec plantain bouilli.", price: 22, img: "/asset/6.webp" },
+                { name: "Folon aux Oignons", desc: "Ragoût de légumes (Amarante).", price: 14, img: "/asset/1.webp" },
+                { name: "Poulet Moambe", desc: "La spécialité ! Accompagnement de manioc.", price: 25, img: "/asset/18.webp" },
+                { name: "Ragoût Viande & Tripes", desc: "Parfumé aux herbes (Dill).", price: 19, img: "/asset/3.webp" }
             ],
             boissons: [
                 { name: "Primus", desc: "Bière Locale", price: 5, img: "https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=150&q=80" },
@@ -454,7 +410,7 @@
             let platsHTML = '';
             menuData.plats.forEach(item => {
                 platsHTML += `
-                    <div class="d1-item" onclick="addToCart('${item.name}', ${item.price})">
+                    <div class="d1-item type-plat" onclick="addToCart('${item.name}', ${item.price})">
                         <img src="${item.img}" alt="${item.name}" class="d1-thumb">
                         <div class="d1-info">
                             <div class="d1-item-name">${item.name}</div>
@@ -472,7 +428,7 @@
             let boissonsHTML = '';
             menuData.boissons.forEach(item => {
                 boissonsHTML += `
-                    <div class="d1-item" onclick="addToCart('${item.name}', ${item.price})">
+                    <div class="d1-item type-boisson" onclick="addToCart('${item.name}', ${item.price})">
                         <img src="${item.img}" alt="${item.name}" class="d1-thumb">
                         <div class="d1-info">
                             <div class="d1-item-name">${item.name}</div>
@@ -484,23 +440,6 @@
                 `;
             });
             boissonsContainer.innerHTML = boissonsHTML;
-
-            // Render Design 2 Grid (Bonus)
-            const d2Grid = document.getElementById('d2-grid');
-            let gridHTML = '';
-            [...menuData.plats, ...menuData.boissons].forEach(item => {
-                gridHTML += `
-                    <div class="d2-card" onclick="addToCart('${item.name}', ${item.price})">
-                        <img src="${item.img}" class="d2-img" alt="${item.name}">
-                        <div class="d2-content">
-                            <h3 class="d2-title">${item.name}</h3>
-                            <p style="color:#888;font-size:0.8rem;">${item.desc}</p>
-                            <span class="d2-price">${item.price} €</span>
-                        </div>
-                    </div>
-                `;
-            });
-            d2Grid.innerHTML = gridHTML;
         }
 
         // --- LOGIC CART & UI ---
@@ -577,19 +516,6 @@
             setTimeout(() => toast.classList.remove('show'), 2000);
         }
 
-        function toggleDesign() {
-            const d1 = document.getElementById('design-1');
-            const d2 = document.getElementById('design-2');
-            if (d1.style.display === 'none') {
-                d1.style.display = 'block';
-                d2.style.display = 'none';
-            } else {
-                d1.style.display = 'none';
-                d2.style.display = 'block';
-            }
-            window.scrollTo(0,0);
-        }
-
         // SCROLL REVEAL
         function checkScroll() {
             const reveals = document.querySelectorAll('.reveal');
@@ -607,4 +533,3 @@
     </script>
 </body>
 </html>
-
